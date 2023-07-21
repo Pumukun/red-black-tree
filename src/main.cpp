@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "Node.hpp"
 #include "RBT.hpp"
 
 using namespace std;

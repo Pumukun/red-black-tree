@@ -20,7 +20,11 @@ private:
 public:
 	Node() = default;
 
-	Node(KEY p_key, DATA p_data): _key(p_key), _data(p_data) {}
+	Node(KEY p_key, DATA p_data): _key(p_key), _data(p_data) {
+        _left = nullptr;
+        _right = nullptr;
+        _parent = nullptr;
+    }
 
 	Node(
 		KEY p_key, 
@@ -38,6 +42,10 @@ public:
 		_color(p_color)
 	{}
 	
+    void swapColor() {
+        _color == BLACK ? _color = RED : _color = BLACK;
+    }
+
 	// getters
 	KEY get_key() const { return _key; }
 	DATA get_data() const { return _data; }

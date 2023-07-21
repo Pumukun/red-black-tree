@@ -65,5 +65,10 @@ public:
 	void set_parent(Node<KEY, DATA>* p_parent) { _parent = p_parent; }
 	void set_right(Node<KEY, DATA>* p_right) { _right = p_right; }
 	void set_left(Node<KEY, DATA>* p_left) { _left = p_left; }
+
+    friend ostream& operator<< (ostream& out, Node<KEY, DATA>& p_node) {
+        out << p_node.get_key() << ", " << p_node.get_data() << "\n";
+        return out;
+    }
 };
 

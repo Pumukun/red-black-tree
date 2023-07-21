@@ -28,14 +28,15 @@ public:
 
     int get_size() const { return _size; }
 
-    Node<KEY, DATA>* insert(KEY p_key, DATA p_data) {
-        
+    void insert(KEY p_key, DATA p_data) {
+        Node<KEY, DATA>* ins_node = new Node(p_key, p_data);
+        _insert_case_1(ins_node);
     }
 
 private:
     
     // find grandparent and uncle of a node
-    Node<KEY,Data>* _find_grandparent(Node<KEY, DATA>* p_node) {
+    Node<KEY, DATA>* _find_grandparent(Node<KEY, DATA>* p_node) {
         if (p_node != nullptr && p_node->get_parent() != nullptr) {
             return p_node->get_parent()->get_parent();
         } else {
@@ -98,6 +99,65 @@ private:
 
         p_node->set_parent(pivot);
         pivot->set_right(p_node);
+    }
+
+
+    // insert cases
+    void _insert_case_1(Node<KEY, DATA>* p_node) {
+        if (p_node->get_parent() == nullptr) {
+            _root = p_node;
+            _root->set_color(BLACK);
+        } else {
+            _insert_case_2(p_node);
+        }
+    }
+
+    void _insert_case_2(Node<KEY, DATA>* p_node) {
+        if (p_node->get_parent()->get_color() == BLACK) {
+            return;
+        } else {
+            _insert_case_3(p_node);
+        }
+    }
+
+    void _insert_case_3(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_uncle = _find_uncle(p_node), *tmp_grandparent;
+
+        if ((tmp_uncle == nullptr) && (tmp_uncle->get_color() == RED)) {
+            p_node->get_parent()->set_color(BLACK);
+            tmp_uncle->set_color(BLACK);
+            tmp_grandparent = _find_grandparent(p_node);
+            tmp_grandparent->set_color(RED);
+            _insert_case_1(tmp_grandparent);
+        } else {
+            _insert_case_4(p_node);
+        }
+    }
+
+    void _insert_case_4(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_grandparent = _find_grandparent(p_node);
+
+        if ((p_node == p_node->get_parent()->get_right()) && (p_node->get_parent() == tmp_grandparent->get_right())) {
+            _rotate_left(p_node->get_parent());
+            p_node = p_node->get_left();
+        } else if ((p_node == p_node->get_parent()->get_left()) && (p_node->get_parent() == tmp_grandparent->get_right())) {
+            _rotate_right(p_node->get_parent());
+            p_node = p_node->get_right();
+        }
+
+        _insert_case_5(p_node);
+    }
+
+    void _insert_case_5(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_grandparent = _find_grandparent(p_node);
+
+        p_node->get_parent()->set_color(BLACK);
+        tmp_grandparent->set_color(RED);
+        if ((p_node == p_node->get_parent()->get_left()) && (p_node->get_parent() == tmp_grandparent->get_left())) {
+            _rotate_right(tmp_grandparent);
+        } else {
+            _rotate_left(tmp_grandparent);
+        }
     }
 };
 

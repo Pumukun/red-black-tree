@@ -1,9 +1,14 @@
 #pragma once
 
+#include <iostream>
+#include <string>
+
 enum Color {
 	BLACK,
 	RED
 };
+
+std::string color_arr[2] = { "BLACK", "RED" };
 
 template<class KEY, class DATA>
 class Node {
@@ -66,8 +71,8 @@ public:
 	void set_right(Node<KEY, DATA>* p_right) { _right = p_right; }
 	void set_left(Node<KEY, DATA>* p_left) { _left = p_left; }
 
-    friend ostream& operator<< (ostream& out, Node<KEY, DATA>& p_node) {
-        out << p_node.get_key() << ", " << p_node.get_data() << "\n";
+    friend std::ostream& operator<< (std::ostream& out, Node<KEY, DATA>& p_node) {
+        out << "k: " << p_node._key << ", d: " << p_node._data << ", c: " << color_arr[p_node._color] << "\n";
         return out;
     }
 };

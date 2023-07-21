@@ -30,6 +30,7 @@ public:
 
     void insert(KEY p_key, DATA p_data) {
         Node<KEY, DATA>* ins_node = new Node(p_key, p_data);
+        cout << *ins_node;
         _insert_case_1(ins_node);
     }
 

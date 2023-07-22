@@ -12,13 +12,15 @@ int main() {
 
     rbt.insert(0, 1); 
     rbt.insert(1, 1);
-    rbt.insert(2, 1);
+    rbt.insert(4, 1);
     rbt.insert(3, 1);
+    rbt.insert(10, 0);
+    rbt.insert(-2, 2);
     
     void (*f_ptr)(Node<int, int>*);
     f_ptr = print_node;
 
-    rbt.in_order(rbt.get_root(), f_ptr);
+    rbt.print_tree(rbt.get_root());
 	return 0;
 }
 

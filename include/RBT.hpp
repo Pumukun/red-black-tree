@@ -29,8 +29,34 @@ public:
     int get_size() const { return _size; }
 
     void insert(KEY p_key, DATA p_data) {
-        Node<KEY, DATA>* ins_node = new Node(p_key, p_data);
-        _insert_case_1(ins_node);
+        // Create a new node with given data
+        Node<KEY, DATA>* new_node = new Node(p_key, p_data);
+
+        // Insert new node into the tree as in BST
+        Node<KEY, DATA>* x = _root, *y = nullptr;
+
+        while (x != nullptr)
+        {
+            y = x;
+            if (p_key < x->get_key()) {
+                x = x->get_left();
+            } else {
+                x = x->get_right();
+            }
+        }
+
+        new_node->set_parent(y);
+
+        if (y == nullptr) {
+            _root = new_node;
+        } else if (p_key < y->get_key()) {
+            y->set_left(new_node);
+        } else {
+            y->set_right(new_node);
+        }
+
+        // Check and balance the tree if needed
+        _insert_case_1(new_node);
     }
 
 private:
@@ -162,40 +188,54 @@ private:
  
 public:
 
+// Вывод дерева в виде дерева
+    void print_tree(Node<KEY, DATA>* p_node, std::string prefix = "", bool is_left = true) {
+        if (p_node == nullptr) {
+            return;
+        }
+
+        std::cout << prefix;
+        std::cout << (is_left ? "|-- " : "`-- ");
+        std::cout << "{" << p_node->get_key() << ", " << p_node->get_data() << "}" << std::endl;
+
+        print_tree(p_node->get_left(), prefix + (is_left ? "|   " : "    "), true);
+        print_tree(p_node->get_right(), prefix + (is_left ? "|   " : "    "), false);
+    }
+
     // < ==== Tree walks ==== > //
-    void pre_order(Node<KEY, DATA>* p_node, void (*f)(Node<KEY, DATA>*)) {
+    void pre_order(Node<KEY, DATA>* p_node) {
         if (p_node != nullptr) {
-            f(p_node);
+            std::cout << p_node;
         }
         if (p_node != nullptr && p_node->get_left() != nullptr) {
-            pre_order(p_node->get_left(), f);
+            pre_order(p_node->get_left());
         }
         if (p_node != nullptr && p_node->get_right() != nullptr) {
-            pre_order(p_node->get_right(), f);
+            pre_order(p_node->get_right());
         }
     }
 
-    void in_order(Node<KEY, DATA>* p_node, void (*f)(Node<KEY, DATA>*)) {
+    void in_order(Node<KEY, DATA>* p_node) {
         if (p_node != nullptr && p_node->get_left() != nullptr) {
-            in_order(p_node->get_left(), f);
+            in_order(p_node->get_left());
         }
         if (p_node != nullptr) {
-            f(p_node);
+            std::cout << p_node;
         }
         if (p_node != nullptr && p_node->get_right() != nullptr) {
-            in_order(p_node->get_right(), f);
+            in_order(p_node->get_right());
         }
     }
 
-    void post_order(Node<KEY, DATA>* p_node, void (*f)(Node<KEY, DATA>*)) {
+    void post_order(Node<KEY, DATA>* p_node) {
         if (p_node != NULL && p_node->get_left() != nullptr) {
-            post_order(p_node->get_left(), f);
+            post_order(p_node->get_left());
         }
         if (p_node != nullptr && p_node->get_right() != nullptr) {
-            post_order(p_node->get_right(), f);
+            post_order(p_node->get_right());
         }
         if (p_node != nullptr) {
-            f(p_node);
+            std::cout << p_node;
         }
     }
 };

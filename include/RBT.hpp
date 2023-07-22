@@ -10,29 +10,26 @@ template<class KEY, class DATA>
 class RBT {
 private:
     Node<KEY, DATA>* _root;
-    Node<KEY, DATA>* _NIL;
 
     int _size;
 
 public:
 
     RBT(): _size(0) {
-        _NIL = new Node<KEY, DATA>(NULL, NULL, nullptr, nullptr, nullptr, BLACK);
-        _root = _NIL;
+        _root = nullptr;
     }
 
     ~RBT() = default;
 
     Node<KEY, DATA>* get_root() const { return _root; }
-    Node<KEY, DATA>* get_NIL() const { return _NIL; }
 
     int get_size() const { return _size; }
 
     void insert(KEY p_key, DATA p_data) {
-        // Create a new node with given data
         Node<KEY, DATA>* new_node = new Node(p_key, p_data);
 
-        // Insert new node into the tree as in BST
+        _size++;
+
         Node<KEY, DATA>* x = _root, *y = nullptr;
 
         while (x != nullptr)
@@ -55,7 +52,6 @@ public:
             y->set_right(new_node);
         }
 
-        // Check and balance the tree if needed
         _insert_case_1(new_node);
     }
 

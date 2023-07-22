@@ -30,7 +30,6 @@ public:
 
     void insert(KEY p_key, DATA p_data) {
         Node<KEY, DATA>* ins_node = new Node(p_key, p_data);
-        cout << *ins_node;
         _insert_case_1(ins_node);
     }
 
@@ -59,7 +58,7 @@ private:
         }
     }
 
-    // left, right rotation
+    // < ==== left, right rotation ==== > //
     void _rotate_left(Node<KEY, DATA>* p_node) {
         Node<KEY, DATA>* pivot = p_node->get_right();
 
@@ -103,7 +102,7 @@ private:
     }
 
 
-    // insert cases
+    // < ==== Insert Cases ==== > //
     void _insert_case_1(Node<KEY, DATA>* p_node) {
         if (p_node->get_parent() == nullptr) {
             _root = p_node;
@@ -158,6 +157,45 @@ private:
             _rotate_right(tmp_grandparent);
         } else {
             _rotate_left(tmp_grandparent);
+        }
+    }
+ 
+public:
+
+    // < ==== Tree walks ==== > //
+    void pre_order(Node<KEY, DATA>* p_node, void (*f)(Node<KEY, DATA>*)) {
+        if (p_node != nullptr) {
+            f(p_node);
+        }
+        if (p_node != nullptr && p_node->get_left() != nullptr) {
+            pre_order(p_node->get_left(), f);
+        }
+        if (p_node != nullptr && p_node->get_right() != nullptr) {
+            pre_order(p_node->get_right(), f);
+        }
+    }
+
+    void in_order(Node<KEY, DATA>* p_node, void (*f)(Node<KEY, DATA>*)) {
+        if (p_node != nullptr && p_node->get_left() != nullptr) {
+            in_order(p_node->get_left(), f);
+        }
+        if (p_node != nullptr) {
+            f(p_node);
+        }
+        if (p_node != nullptr && p_node->get_right() != nullptr) {
+            in_order(p_node->get_right(), f);
+        }
+    }
+
+    void post_order(Node<KEY, DATA>* p_node, void (*f)(Node<KEY, DATA>*)) {
+        if (p_node != NULL && p_node->get_left() != nullptr) {
+            post_order(p_node->get_left(), f);
+        }
+        if (p_node != nullptr && p_node->get_right() != nullptr) {
+            post_order(p_node->get_right(), f);
+        }
+        if (p_node != nullptr) {
+            f(p_node);
         }
     }
 };

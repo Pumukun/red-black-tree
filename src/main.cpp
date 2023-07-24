@@ -10,7 +10,7 @@ using namespace experimental;
 int main() {
 	RBT<int, int> rbt;
     
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 10; i++) {
         rbt.insert(randint(-50, 50), randint(-10, 10));
     }
     

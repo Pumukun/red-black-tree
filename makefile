@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -I include
+CXXFLAGS = -Wall -I include -g -O0
 SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin

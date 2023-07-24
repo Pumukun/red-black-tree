@@ -12,7 +12,7 @@ std::string color_arr[2] = { "BLACK", "RED" };
 
 template<class KEY, class DATA>
 class Node {
-private:
+protected:
 	KEY _key;
 	DATA _data;
 
@@ -55,7 +55,7 @@ public:
 	KEY get_key() const { return _key; }
 	DATA get_data() const { return _data; }
 
-	Color get_color() const { return _color; }
+	Color get_color() { return _color; }
 
 	Node<KEY, DATA>* get_parent() const { return _parent; }
 	Node<KEY, DATA>* get_right() const { return _right; }

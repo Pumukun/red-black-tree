@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 
 #include "Node.hpp"
 
@@ -14,8 +13,6 @@ private:
 
     int _size;
 
-    vector<Node<KEY, DATA>> _nodes;
-
 public:
 
     RBT(): _size(0) {
@@ -27,8 +24,6 @@ public:
     Node<KEY, DATA>* get_root() const { return _root; }
 
     int get_size() const { return _size; }
-
-    vector<Node<KEY, DATA>> get_nodes() { return _nodes; }
 
     void insert(KEY p_key, DATA p_data) {
         Node<KEY, DATA>* new_node = new Node(p_key, p_data);
@@ -57,31 +52,25 @@ public:
             y->set_right(new_node);
         }
 
-        _nodes.push_back(*new_node);
-
         _insert_case_1(new_node);
     }
     
-
-    void remove(KEY p_key) {   
-        _delete_node(p_key);
+    void remove(KEY p_key) {
+        Node<KEY, DATA>* tmp_find = find(p_key);
+        if (tmp_find == nullptr) {
+            return;
+        } else {
+            _delete_one_child(tmp_find);
+        }
     }
 
-    // < ==== Find block ==== >
     Node<KEY, DATA>* find(KEY p_key) {
         return _find_r(p_key, _root);
     }
 
-    Node<KEY, DATA>* find_min(Node<KEY, DATA>* p_node) {
-        if (p_node->get_left() == nullptr) {
-            return p_node;
-        } else {
-            return find_min(p_node->get_left());
-        }
-    }    
-
 private:
-
+    
+    // find grandparent and uncle of a node
     Node<KEY, DATA>* _find_grandparent(Node<KEY, DATA>* p_node) {
         if (p_node != nullptr && p_node->get_parent() != nullptr) {
             return p_node->get_parent()->get_parent();
@@ -112,7 +101,7 @@ private:
         }
     }
 
-    // < ==== get_left(), get_right() rotation ==== > //
+    // < ==== left, right rotation ==== > //
     void _rotate_left(Node<KEY, DATA>* p_node) {
         Node<KEY, DATA>* pivot = p_node->get_right();
 
@@ -220,12 +209,15 @@ private:
         if (cur_node == nullptr) {
             return nullptr;
         }
+
         if (cur_node->get_key() == p_key) {
             return cur_node;
         }
+
         if (cur_node->get_key() > p_key) {
             return _find_r(p_key, cur_node->get_left());
         }
+
         if (cur_node->get_key() < p_key) {
             return _find_r(p_key, cur_node->get_right());
         }
@@ -233,128 +225,130 @@ private:
 
 
     // < ==== Deletion block ==== > //
-    void _delete_node(KEY p_key) {
-        Node<KEY, DATA>* tmp_node = _root;
-        Node<KEY, DATA>* parent = nullptr;
-        Node<KEY, DATA>* child = nullptr;
-        Color original_color;
-
-        while (tmp_node != nullptr) {
-            if (p_key == tmp_node->get_key())
-                break;
-
-            parent = tmp_node;
-
-            if (p_key < tmp_node->get_key())
-                tmp_node = tmp_node->get_left();
-            else
-                tmp_node = tmp_node->get_right();
+    bool _is_leaf(Node<KEY, DATA>* p_node) {
+        if (p_node->get_left() == nullptr && p_node->get_right() == nullptr) {
+            return true;
+        } else {
+            return false;
         }
-
-        if (tmp_node == nullptr)
-            return;
-
-        if (tmp_node->get_left() == nullptr || tmp_node->get_right() == nullptr)
-            child = tmp_node;
-        else {
-            Node<KEY, DATA>* successor = tmp_node->get_right();
-
-            while (successor->get_left() != nullptr)
-                successor = successor->get_left();
-
-            child = successor;
-        }
-
-        if (child->get_left() != nullptr)
-            parent = child->get_left();
-        else
-            parent = child->get_right();
-
-        if (parent != nullptr)
-            parent->set_parent(child->get_parent());
-
-        if (child->get_parent() == nullptr)
-            _root = parent;
-        else if (child == child->get_parent()->get_left())
-            child->get_parent()->set_left(parent);
-        else
-            child->get_parent()->set_right(parent);
-
-        if (child != tmp_node) {
-            tmp_node->set_key(child->get_key());
-            tmp_node->set_data(child->get_data());
-        }
-
-        original_color = child->get_color();
-        delete child;
-
-        if (original_color == BLACK && parent != nullptr)
-            _delete_fixup(parent);    
     }
 
-    void _delete_fixup(Node<KEY, DATA>* p_node) {
-        while (p_node != _root && (p_node == nullptr && p_node->get_color() == BLACK)) {
-            if (p_node == p_node->get_parent()->get_left()) {
-                Node<KEY, DATA>* sibling = p_node->get_parent()->get_right();
+    void _replace_node(Node<KEY, DATA>* p_node, Node<KEY, DATA>* p_child) {
+        p_child->set_parent(p_node->get_parent());
+        if (p_node == p_node->get_parent()->get_left()) {
+            p_node->get_parent()->set_left(p_child);
+        } else {
+            p_node->get_parent()->set_right(p_child);
+        }
+    }
 
-                if (sibling->get_color() == RED) {
-                    sibling->set_color(BLACK);
-                    p_node->get_parent()->set_color(RED);
-                    _rotate_left(p_node->get_parent());
-                    sibling = p_node->get_parent()->get_right();
-                }
+    void _delete_one_child(Node<KEY, DATA>* p_node) {
+	    Node<KEY, DATA>* tmp_child = _is_leaf(p_node->get_right()) ? p_node->get_left() : p_node->get_right();
+    
+	    _replace_node(p_node, tmp_child);
 
-                if ((sibling->get_left() == nullptr || sibling->get_left()->get_color() == BLACK) &&
-                    (sibling->get_right() == nullptr || sibling->get_right()->get_color() == BLACK)) {
-                    sibling->set_color(RED);
-                    p_node = p_node->get_parent();
-                } else {
-                    if (sibling->get_right() == nullptr || sibling->get_right()->get_color() == BLACK) {
-                        sibling->get_left()->set_color(BLACK);
-                        sibling->set_color(RED);
-                        _rotate_right(sibling);
-                        sibling = p_node->get_parent()->get_right();
-                    }
-
-                    sibling->set_color(p_node->get_parent()->get_color());
-                    p_node->get_parent()->set_color(BLACK);
-                    sibling->get_right()->set_color(BLACK);
-                    _rotate_left(p_node->get_parent());
-                    p_node = _root;
-                }
+	    if (p_node->get_color() == BLACK) {
+            if (tmp_child->get_color() == RED) {
+                tmp_child->set_color(BLACK);
             } else {
-                Node<KEY, DATA>* sibling = p_node->get_parent()->get_left();
+                _delete_case_1(tmp_child);
+            }
+	    }
 
-                if (sibling->get_color() == RED) {
-                    sibling->set_color(BLACK);
-                    p_node->get_parent()->set_color(RED);
-                    _rotate_right(p_node->get_parent());
-                    sibling = p_node->get_parent()->get_left();
-                }
+	    delete p_node;
+    }
 
-                if ((sibling->get_right() == nullptr || sibling->get_right()->get_color() == BLACK) &&
-                    (sibling->get_left() == nullptr || sibling->get_left()->get_color() == BLACK)) {
-                    sibling->set_color(RED);
-                    p_node = p_node->get_parent();
-                } else {
-                    if (sibling->get_left() == nullptr || sibling->get_left()->get_color() == BLACK) {
-                        sibling->get_right()->set_color(BLACK);
-                        sibling->set_color(RED);
-                        _rotate_left(sibling);
-                        sibling = p_node->get_parent()->get_left();
-                    }
+    void _delete_case_1(Node<KEY, DATA>* p_node) {
+        if (p_node->get_parent() != nullptr) {
+            _delete_case_2(p_node);
+        }
+    }
 
-                    sibling->set_color(p_node->get_parent()->get_color());
-                    p_node->get_parent()->set_color(BLACK);
-                    sibling->get_left()->set_color(BLACK);
-                    _rotate_right(p_node->get_parent());
-                    p_node = _root;
-                }
+    void _delete_case_2(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_brother = _find_brother(p_node);
+
+        if (tmp_brother->get_color() == RED) {
+            p_node->get_parent()->set_color(RED);
+            tmp_brother->set_color(BLACK);
+            if (p_node == p_node->get_parent()->get_left()) {
+                _rotate_left(p_node->get_parent());
+            } else {
+                _rotate_right(p_node->get_parent());
             }
         }
 
-        if (p_node != nullptr)
-            p_node->set_color(BLACK);    
+        _delete_case_3(p_node);
+    }
+
+    void _delete_case_3(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_brother = _find_brother(p_node);
+
+	    if (
+            (p_node->get_parent()->get_color() == BLACK) &&
+	        (tmp_brother->get_color() == BLACK) &&
+	        (tmp_brother->get_left()->get_color() == BLACK) &&
+	        (tmp_brother->get_right()->get_color() == BLACK)
+        ) {
+            tmp_brother->set_color(RED);
+            _delete_case_1(p_node->get_parent());
+	    } else {
+            _delete_case_4(p_node);
+        }
+    }
+
+    void _delete_case_4(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_brother = _find_brother(p_node);
+
+        if (
+            (p_node->get_parent()->get_color() == RED) &&
+            (tmp_brother->get_color() == BLACK) &&
+            (tmp_brother->get_left()->get_color() == BLACK) &&
+            (tmp_brother->get_right()->get_color() == BLACK)
+        ) {
+            tmp_brother->set_color(RED);
+            p_node->get_parent()->set_color(BLACK);
+        } else {
+            _delete_case_5(p_node);
+        }
+    }
+
+    void _delete_case_5(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_brother = _find_brother(p_node);
+        if (tmp_brother->get_color() == BLACK) { 
+            if (
+                (p_node == p_node->get_parent()->get_left()) &&
+                (tmp_brother->get_right()->get_color() == BLACK) &&
+                (tmp_brother->get_left()->get_color() == RED)
+            ) {
+                tmp_brother->set_color(RED);
+                tmp_brother->get_left()->set_color(BLACK);
+                _rotate_right(tmp_brother);
+            } else if (
+                (p_node == p_node->get_parent()->get_right()) &&
+                (tmp_brother->get_left()->get_color() == BLACK) &&
+                (tmp_brother->get_right()->get_color() == RED)
+            ) {
+                tmp_brother->set_color(RED);
+                tmp_brother->get_right()->set_color(BLACK);
+                _rotate_left(tmp_brother);
+            }
+        }
+        _delete_case_6(p_node);
+    }
+
+    void _delete_case_6(Node<KEY, DATA>* p_node) {
+        Node<KEY, DATA>* tmp_brother = _find_brother(p_node);
+
+        tmp_brother->set_color(p_node->get_parent()->get_color());
+        p_node->get_parent()->set_color(BLACK);
+
+        if (p_node == p_node->get_parent()->get_left()) {
+            tmp_brother->get_right()->set_color(BLACK);
+            _rotate_left(p_node->get_parent());
+        } else {
+            tmp_brother->get_left()->set_color(BLACK);
+            _rotate_right(p_node->get_parent());
+        }
     }
 
 public:
@@ -365,10 +359,8 @@ public:
         }
 
         std::cout << prefix;
-        std::cout << (is_left ? "#-- " : "`-- ");
-        std::cout << "{" << p_node->get_key() << ", " 
-            << p_node->get_data() << ", " 
-            << (p_node->get_color() == BLACK ? "b" : "r") << "}\n";
+        std::cout << (is_left ? "|-- " : "`-- ");
+        std::cout << "{" << p_node->get_key() << ", " << p_node->get_data() << "}" << std::endl;
 
         print_tree(p_node->get_left(), prefix + (is_left ? "|   " : "    "), true);
         print_tree(p_node->get_right(), prefix + (is_left ? "|   " : "    "), false);

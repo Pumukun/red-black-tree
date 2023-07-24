@@ -10,7 +10,7 @@ using namespace experimental;
 int main() {
 	RBT<int, int> rbt;
     
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 30; i++) {
         rbt.insert(randint(-50, 50), randint(-10, 10));
     }
     
@@ -25,13 +25,14 @@ int main() {
         cout << "---------------------------------------------\n";
     }
     */
-
+    
+    /*
     RBT<int, int>::tree_iterator iter = rbt.begin();
     while (iter != rbt.end()) {
         cout << *iter;
         iter++;
     } cout << *iter;
-
+    */
     return 0;
 }
 

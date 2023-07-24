@@ -18,6 +18,8 @@ private:
 
 public:
 
+    class tree_iterator;
+
     RBT(): _size(0) {
         _root = nullptr;
     }
@@ -62,8 +64,7 @@ public:
         _insert_case_1(new_node);
     }
     
-
-    void remove(KEY p_key) {   
+    void remove(KEY p_key) { 
         _delete_node(p_key);
     }
 
@@ -72,13 +73,123 @@ public:
         return _find_r(p_key, _root);
     }
 
-    Node<KEY, DATA>* find_min(Node<KEY, DATA>* p_node) {
-        if (p_node->get_left() == nullptr) {
-            return p_node;
-        } else {
-            return find_min(p_node->get_left());
+    Node<KEY, DATA>* find_min(Node<KEY, DATA>* p_node = nullptr) {
+        if (_root == nullptr) { return nullptr; }
+        if (p_node == nullptr) {
+            p_node = _root;
         }
+        while (p_node->get_left() != nullptr) {
+            p_node = p_node->get_left();
+        }
+        return p_node;
     }    
+
+    Node<KEY, DATA>* find_max(Node<KEY, DATA>* p_node = nullptr) {
+        if (_root == nullptr) { return nullptr; }
+        if (p_node == nullptr) {
+            p_node = _root;
+        }
+        while (p_node->get_right() != nullptr) {
+            p_node = p_node->get_right();
+        }
+        return p_node;
+    }
+
+    // < ==== Tree iterator ==== > //
+    class tree_iterator {
+    private:
+
+        Node<KEY, DATA>* ptr;
+
+    public:
+
+        tree_iterator() { ptr = nullptr; }
+
+        tree_iterator(Node<KEY, DATA> *p_node): ptr(p_node) {}
+
+        tree_iterator(const tree_iterator &it) { ptr = it.ptr; }
+
+        Node<KEY, DATA>* find_min(Node<KEY, DATA>* p_node = nullptr) {
+            if (ptr == nullptr) return nullptr;
+            if (p_node == nullptr)
+                p_node = ptr;
+            while (p_node->get_left() != nullptr)
+                p_node = p_node->get_left();
+            return p_node;        
+        }    
+
+        Node<KEY, DATA>* find_max(Node<KEY, DATA>* p_node = nullptr) {
+            if (ptr == nullptr) return nullptr;
+            if (p_node == nullptr)
+                p_node = ptr;
+            while (p_node->get_right() != nullptr)
+                p_node = p_node->get_right();
+            return p_node;
+        }
+
+
+        Node<KEY, DATA>& operator++ (int) {
+            if (ptr == nullptr)
+                throw std::out_of_range("iterator ptr is null");
+
+            if (ptr->get_right() != nullptr)
+                ptr = find_min(ptr->get_right());
+            else {
+                if (ptr->get_parent() == nullptr)
+                    return *ptr;
+
+                Node<KEY, DATA> *current = ptr->get_parent();
+
+                while (current->get_parent() != nullptr && current->get_key() <= ptr->get_key())
+                    current = current->get_parent();
+                if (current->get_key() > ptr->get_key())
+                    ptr = current;
+            }
+            return *ptr;
+        }
+
+        Node<KEY, DATA>& operator-- (int) {
+            if (ptr == nullptr)
+                throw std::out_of_range("iterator ptr is null");
+
+            if (ptr->get_left() != nullptr)
+                ptr = find_max(ptr->get_left());
+            else {
+                if (ptr->get_parent() == nullptr)
+                    return *ptr;
+
+                Node<KEY, DATA> *current = ptr->get_parent();
+
+                while (current->get_parent() != nullptr && current->get_key() > ptr->get_key())
+                    current = current->get_parent();
+                if (current->get_key() < ptr->get_key())
+                    ptr = current;
+                }
+                return *ptr;
+            }
+
+        Node<KEY, DATA>& operator* () {
+            if (ptr == nullptr)
+                throw std::out_of_range("iterator ptr is null");
+            return *ptr;
+        }
+
+        bool operator!= (const tree_iterator& p_it) { return ptr != p_it.ptr; }
+
+        bool operator== (const tree_iterator& p_it) { return ptr == p_it.ptr; }
+    };
+
+    friend class tree_iterator;
+
+    tree_iterator begin() { 
+        auto it = find_min(_root);
+        return it; 
+    }
+
+    tree_iterator end() { 
+        auto it = find_max(_root);
+        return it; 
+    }
 
 private:
 
@@ -240,45 +351,48 @@ private:
         Color original_color;
 
         while (tmp_node != nullptr) {
-            if (p_key == tmp_node->get_key())
-                break;
+            if (p_key == tmp_node->get_key()) { break; }
 
             parent = tmp_node;
 
-            if (p_key < tmp_node->get_key())
+            if (p_key < tmp_node->get_key()) {
                 tmp_node = tmp_node->get_left();
-            else
+            } else {
                 tmp_node = tmp_node->get_right();
+            }
         }
 
-        if (tmp_node == nullptr)
-            return;
+        if (tmp_node == nullptr) { return; }
 
-        if (tmp_node->get_left() == nullptr || tmp_node->get_right() == nullptr)
+        if (tmp_node->get_left() == nullptr || tmp_node->get_right() == nullptr) {
             child = tmp_node;
-        else {
+        } else {
             Node<KEY, DATA>* successor = tmp_node->get_right();
 
-            while (successor->get_left() != nullptr)
+            while (successor->get_left() != nullptr) {
                 successor = successor->get_left();
+            }
 
             child = successor;
         }
 
-        if (child->get_left() != nullptr)
+        if (child->get_left() != nullptr) {
             parent = child->get_left();
-        else
+        } else {
             parent = child->get_right();
+        }
 
-        if (parent != nullptr)
+        if (parent != nullptr) {
             parent->set_parent(child->get_parent());
+        }
 
-        if (child->get_parent() == nullptr)
+        if (child->get_parent() == nullptr) {
             _root = parent;
-        else if (child == child->get_parent()->get_left())
+        } else if (child == child->get_parent()->get_left()) {
             child->get_parent()->set_left(parent);
-        else
+        } else {
             child->get_parent()->set_right(parent);
+        }
 
         if (child != tmp_node) {
             tmp_node->set_key(child->get_key());
@@ -288,8 +402,9 @@ private:
         original_color = child->get_color();
         delete child;
 
-        if (original_color == BLACK && parent != nullptr)
+        if (original_color == BLACK && parent != nullptr) {
             _delete_fixup(parent);    
+        }
     }
 
     void _delete_fixup(Node<KEY, DATA>* p_node) {
@@ -353,8 +468,7 @@ private:
             }
         }
 
-        if (p_node != nullptr)
-            p_node->set_color(BLACK);    
+        if (p_node != nullptr) { p_node->set_color(BLACK); }    
     }
 
 public:

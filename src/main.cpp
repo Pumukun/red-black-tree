@@ -16,14 +16,22 @@ int main() {
     
     rbt.print_tree(rbt.get_root());
     
+    /*
     vector<Node<int, int>> nodes = rbt.get_nodes();
-
+    
     for (Node<int, int> &i : nodes) {
         rbt.remove(i.get_key());
         rbt.print_tree(rbt.get_root());
         cout << "---------------------------------------------\n";
     }
-    
-	return 0;
+    */
+
+    RBT<int, int>::tree_iterator iter = rbt.begin();
+    while (iter != rbt.end()) {
+        cout << *iter;
+        iter++;
+    } cout << *iter;
+
+    return 0;
 }
 

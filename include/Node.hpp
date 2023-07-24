@@ -23,7 +23,11 @@ protected:
 	Node<KEY, DATA>* _left;
 
 public:
-	Node() = default;
+	Node<KEY, DATA>() {
+        _left = nullptr;
+        _right = nullptr;
+        _parent = nullptr;
+    }
 
 	Node(KEY p_key, DATA p_data): _key(p_key), _data(p_data) {
         _left = nullptr;
@@ -47,15 +51,11 @@ public:
 		_color(p_color)
 	{}
 	
-    void swapColor() {
-        _color == BLACK ? _color = RED : _color = BLACK;
-    }
-
 	// getters
 	KEY get_key() const { return _key; }
 	DATA get_data() const { return _data; }
 
-	Color get_color() { return _color; }
+	Color get_color() const { return _color; }
 
 	Node<KEY, DATA>* get_parent() const { return _parent; }
 	Node<KEY, DATA>* get_right() const { return _right; }

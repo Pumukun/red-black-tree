@@ -1,7 +1,7 @@
 # Red Black tree structure
 ## Build
 ```
-$ make
-$ ./bin/RBT
+$ make release
+$ ./bin/RBT_release
 ```
 have fun in src/main.cpp, or you can include it in your projects, XD!

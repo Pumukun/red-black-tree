@@ -479,10 +479,9 @@ public:
         }
 
         std::cout << prefix;
-        std::cout << (is_left ? "\033[33m|-- \033[0m" : "\033[33m`-- \033[0m");
-        std::cout << "\033[32m{\033[0m" << p_node->get_key() << "\033[32m,\033[4;0m " 
-            << p_node->get_data() /* << ", " 
-            << (p_node->get_color() == BLACK ? "b" : "r") */ << "\033[32m}\033[0m\n";
+        std::cout << (is_left ? "|-- " : "`-- ");
+        std::cout << "{" << p_node->get_key() << ", " 
+            << p_node->get_data() << "}\n";
 
         print_tree(p_node->get_left(), prefix + (is_left ? "|   " : "    "), true);
         print_tree(p_node->get_right(), prefix + (is_left ? "|   " : "    "), false);
@@ -491,7 +490,7 @@ public:
     // < ==== Tree walks ==== > //
     void pre_order(Node<KEY, DATA>* p_node) {
         if (p_node != nullptr) {
-            std::cout << p_node;
+            std::cout << *p_node;
         }
         if (p_node != nullptr && p_node->get_left() != nullptr) {
             pre_order(p_node->get_left());
@@ -506,7 +505,7 @@ public:
             in_order(p_node->get_left());
         }
         if (p_node != nullptr) {
-            std::cout << p_node;
+            std::cout << *p_node;
         }
         if (p_node != nullptr && p_node->get_right() != nullptr) {
             in_order(p_node->get_right());
@@ -521,8 +520,16 @@ public:
             post_order(p_node->get_right());
         }
         if (p_node != nullptr) {
-            std::cout << p_node;
+            std::cout << *p_node;
         }
+    }
+    
+    void print_iterator() {
+        auto iter = (*this).begin();
+        while (iter != (*this).end()) {
+            std::cout << *iter;
+            iter++;
+        } std::cout << *iter; 
     }
 };
 

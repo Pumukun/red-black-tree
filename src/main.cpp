@@ -8,31 +8,18 @@ using namespace std;
 using namespace experimental;
 
 int main() {
-	RBT<int, int> rbt;
+	RBT<string, string> rbt;
     
-    for (int i = 0; i < 30; i++) {
-        rbt.insert(randint(-50, 50), randint(-10, 10));
-    }
-    
-    rbt.print_tree(rbt.get_root());
-    
-    /*
-    vector<Node<int, int>> nodes = rbt.get_nodes();
-    
-    for (Node<int, int> &i : nodes) {
-        rbt.remove(i.get_key());
-        rbt.print_tree(rbt.get_root());
-        cout << "---------------------------------------------\n";
-    }
-    */
-    
-    /*
-    RBT<int, int>::tree_iterator iter = rbt.begin();
-    while (iter != rbt.end()) {
-        cout << *iter;
-        iter++;
-    } cout << *iter;
-    */
+    rbt.insert("Ivanov", "Ivan");
+    rbt.insert("Pirogov", "Alexander");
+    rbt.insert("Sidorov", "Kiril");
+    rbt.insert("Pavlov", "Pavel");
+    rbt.insert("Mikhaylov", "Mikhail");
+
+    rbt.in_order(rbt.get_root());
+
+    cout << "\n\ntree find: " << *rbt.find("Pavlov");
+
     return 0;
 }
 
